@@ -1,0 +1,16 @@
+{% extends 'base.html' %}
+
+{% block title %}
+Add User Form
+{% endblock %}
+
+{% block main_content %}
+    <h2>Add a user</h2>
+    <form id='add_user_form' method="POST" action="/users/new">
+        <p>First Name: <input type='text' id='first_name' name='first_name'></p>
+        <p>Last Name: <input type='text' id='last_name' name='last_name'></p>
+        <p>Image URL: <input type='url' id='image_url' name='image_url'></p>
+        <button>Add</button>
+    </form>
+    <p><a href='/users'><button>Cancel</button></a></p>
+{% endblock %}

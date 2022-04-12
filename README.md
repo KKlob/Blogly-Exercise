@@ -1,4 +1,8 @@
 # Blogly-Exercise
 Springboard provided exercise on SQLAlchemy 
 
-Part 1 of exercise complete. Will update Readme + files when finished with part 2
+Part 1 of exercise complete.
+
+Part 2 complete on 4/11/2022. 
+
+Will update readme when Part 3 is finished + pushed

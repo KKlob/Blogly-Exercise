@@ -5,12 +5,29 @@ User Detail
 {% endblock %}
 
 {% block main_content %}
+<div class="row row-cols-auto">
+    <div class="col">
     <img src="{{user.image_url}}" height='300px' width='300px'>
-    <h2>{{user.first_name}} {{user.last_name}}</h2>
-    <table>
-        <tr>
-            <td><a href='/users/{{user.id}}/edit'><button>Edit</button></a></td>
-            <td><form id="delete_user" method="POST" action="/users/{{user.id}}/delete"><button>Delete</button></form></td>
-        </tr>
-    </table>
+    </div>
+    <div class="col">
+    <h2 class="display-3">{{user.first_name}} {{user.last_name}}</h2>
+    <div class="container">
+        <div class="row row-cols-auto">
+            <div class="col">
+            <a href='/users/{{user.id}}/edit'><button class="btn btn-primary">Edit</button></a></td>
+            </div>
+            <div class="col">
+            <form id="delete_user" method="POST" action="/users/{{user.id}}/delete"><button class="btn btn-danger">Delete</button></form></td>
+            </div>
+        </div>
+    </div>
+    <h2 class="display-5 mt-3">Posts</h2>
+        <div class="list-group">
+            {% for post in posts %}
+            <a href="/posts/{{post.id}}" class="list-group-item list-group-item-action">{{post.title}}</a>
+            {% endfor %}
+        </div>
+        <a href='/users/{{user.id}}/posts/new'><button type="button" class="btn btn-primary mt-2">Add Post</button></a> 
+    </div>
+</div>
 {% endblock %}

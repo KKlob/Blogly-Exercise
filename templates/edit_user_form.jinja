@@ -5,12 +5,24 @@ Edit User Form
 {% endblock %}
 
 {% block main_content %}
+<div class="row">
+    <div class="col col-span">
     <h2>Edit a user</h2>
     <form id='add_user_form' method="POST" action='/users/{{user.id}}/edit'>
-        <p>First Name: <input type='text' id='first_name' name='first_name' value='{{user.first_name}}'></p>
-        <p>Last Name: <input type='text' id='last_name' name='last_name' value='{{user.last_name}}'></p>
-        <p>Image URL: <input type='url' id='image_url' name='image_url' value='{{user.image_url}}'></p>
-        <button>Submit</button>
+        <div class="mb-2 col-sm-3">
+            <label for="first_name" class="form-label">First Name</label>
+            <input type='text' class="form-control" id='first_name' name='first_name' value='{{user.first_name}}'>
+        </div>
+        <div class="mb-2 col-sm-3">
+            <labl for="last_name" class="form-label">Last Name</label>
+            <input type='text' class="form-control" id='last_name' name='last_name' value='{{user.last_name}}'>
+        </div>
+        <div class="mb-2 col-sm-5">
+            <label for="image_url" class="form-label">Image URL</label>
+            <input type='url' class="form-control" id='image_url' name='image_url' value='{{user.image_url}}'>
+        </div>
+        <button type="submit" class="btn btn-primary">Submit</button>  <a href='/users'><button type="button" class="btn btn-warning">Cancel</button></a>
     </form>
-    <p><a href='/users'><button>Cancel</button></a></p>
+    </div>
+</div>
 {% endblock %}

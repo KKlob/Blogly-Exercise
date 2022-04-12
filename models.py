@@ -1,5 +1,7 @@
 """Models for Blogly."""
 from flask_sqlalchemy import SQLAlchemy
+from sqlalchemy.orm  import backref
+from datetime import datetime
 
 db = SQLAlchemy()
 
@@ -57,3 +59,66 @@ class User(db.Model):
         user = self.get_user(userID)
         db.session.delete(user)
         db.session.commit()
+
+class Post(db.Model):
+    """Posts"""
+
+    __tablename__ = "posts"
+
+    id = db.Column(db.Integer,
+                    primary_key=True,
+                    autoincrement=True)
+    title = db.Column(db.String(100),
+                    nullable=False)
+    content = db.Column(db.Text,
+                    nullable=False)
+    created_at = db.Column(db.Text,
+                    nullable=False)
+    user_id = db.Column(db.Integer,
+                        db.ForeignKey('users.id', ondelete='CASCADE'))
+
+    user = db.relationship('User', backref="posts")
+
+    def __repr__(self):
+        """Show info about the post"""
+
+        p = self
+        return f"<Post ID: {p.id} | title: {p.title} | content: {p.content} | created_at: {p.created_at} | user_id: {p.user_id} >"
+
+    @classmethod
+    def get_all_posts(self, userID):
+        return list(Post.query.filter(Post.user_id == userID).all())
+    
+    @classmethod
+    def get_post(self, postID):
+        return Post.query.get(postID)
+
+    @classmethod
+    def add_new_post(self, title, content, date, userID):
+        post = Post(title=title, content=content, created_at=date, user_id=userID)
+        db.session.add(post)
+        db.session.commit()
+
+    @classmethod
+    def update_post(self, title, content, date, postID):
+        post = self.get_post(postID)
+        post.title = title
+        post.content = content
+        post.created_at = date
+        userID = post.user_id
+        db.session.add(post)
+        db.session.commit()
+        return userID
+
+    @classmethod
+    def delete_post(self, postID):
+        post = self.get_post(postID)
+        userID = post.user_id
+        db.session.delete(post)
+        db.session.commit()
+        return userID
+
+    @classmethod
+    def get_datetime(self):
+        return datetime.now().strftime("%a %b %d %Y, %I:%M %p")
+       

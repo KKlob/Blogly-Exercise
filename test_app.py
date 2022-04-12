@@ -1,7 +1,7 @@
 from pydoc import HTMLDoc
 from unittest import TestCase
 from app import app
-from models import db, User
+from models import db, User, Post
 
 # use test database - must be created before running tests
 app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql:///blogly_test'
@@ -23,12 +23,20 @@ class UserModelTestCase(TestCase):
     def setUp(self):
         """Clean up any existing users"""
         User.query.delete()
+        Post.query.delete()
 
         user = User(first_name="George", last_name="Washington", image_url="https://external-content.duckduckgo.com/iu/?u=http%3A%2F%2Fwww.americanhistorycentral.com%2Fwp-content%2Fuploads%2F2016%2F08%2Fgeorge-washington-portrait.jpg&f=1&nofb=1")
         db.session.add(user)
         db.session.commit()
-
+        
         self.user_id = user.id
+
+        date = Post.get_datetime()
+        post = Post(title="first title", content="This is some content for the post", created_at=date, user_id=self.user_id)
+        db.session.add(post)
+        db.session.commit()
+
+        self.post_id = post.id
 
     def tearDown(self):
         """Clean up any fouled transactions"""
@@ -63,7 +71,8 @@ class UserModelTestCase(TestCase):
             html = resp.get_data(as_text=True)
 
             self.assertEqual(resp.status_code, 200)
-            self.assertIn('<h2>George Washington</h2>', html)
+            self.assertIn('George Washington', html)
+            self.assertIn("first title", html)
 
     def test_update_user(self):
         with app.test_client() as client:
@@ -86,3 +95,44 @@ class UserModelTestCase(TestCase):
 
             self.assertEqual(resp.status_code, 200)
             self.assertNotIn('George Washington', html)
+
+    def test_post_details(self):
+        with app.test_client() as client:
+            resp = client.get(f'/posts/{self.post_id}')
+            html = resp.get_data(as_text=True)
+
+            self.assertEqual(resp.status_code, 200)
+            self.assertIn("first title", html)
+            self.assertIn("This is some content for the post", html)
+
+    def test_add_post(self):
+        with app.test_client() as client:
+            resp = client.post(f'/users/{self.user_id}/posts/new', data={
+                'title': "New title",
+                'content': "This is the content for new title post",
+                'created_at': "Mon Jan 1 2022, 10:30 AM",
+                'user_id': self.user_id}, follow_redirects=True)
+            html = resp.get_data(as_text=True)
+
+            self.assertEqual(resp.status_code, 200)
+            self.assertIn("New title", html)
+
+    def test_edit_post(self):
+        with app.test_client() as client:
+            resp = client.post(f'/posts/{self.post_id}/edit', data={
+                'title': "Title 2",
+                'content': "This is some editted content",
+                'created_at': "Mon Jan 1 2022, 10:30 AM"}, follow_redirects=True)
+            html = resp.get_data(as_text=True)
+
+            self.assertEqual(resp.status_code, 200)
+            self.assertIn('Title 2', html)
+            self.assertNotIn('first title', html)
+
+    def test_delete_post(self):
+        with app.test_client() as client:
+            resp = client.post(f'/posts/{self.post_id}/delete', follow_redirects=True)
+            html = resp.get_data(as_text=True)
+
+            self.assertEqual(resp.status_code, 200)
+            self.assertNotIn('first title', html)

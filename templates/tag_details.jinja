@@ -1,0 +1,30 @@
+{% extends 'base.html' %}
+
+{% block title %}
+Tag Detail
+{% endblock %}
+
+{% block main_content %}
+<div class="row row-cols-auto">
+    <div class="col">
+        <h2 class="display-3">{{tag.name}}</h2>
+        <div class="container">
+            <div class="row">
+                <div class="list-group">
+                    {% for post in tag.posts %}
+                    <a href="/posts/{{post.id}}" class="list-group-item list-group-item-action">{{post.title}}</a>
+                    {% endfor %}
+                </div>
+                <div class="row row-cols-auto mt-3">
+                    <div class="col">
+                    <a href='/tags/{{tag.id}}/edit'><button class="btn btn-primary">Edit</button></a></td>
+                    </div>
+                    <div class="col">
+                    <form id="delete_tag" method="POST" action="/tags/{{tag.id}}/delete"><button class="btn btn-danger">Delete</button></form></td>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -17,6 +17,14 @@ Add Post Form
             <label for="content" class="form-label">Content</label>
             <textarea id="content" name='content' class="form-control z-depth-1" rows="4" placeholder="Write your content here..." form="add_post_form"></textarea>
         </div>
+        <div class="mb-2 col-sm-3">
+            {% for tag in tags %}
+                <div class="form-check">
+                    <input class="form-check-input" type="checkbox" value="{{tag.name}}" id="tagID{{tag.id}}" name="tags_checklist" form="add_post_form">
+                    <label class="form-check-label" for="tagID{{tag.id}}">{{tag.name}}</label>
+                </div>
+            {% endfor %}
+        </div>
         <button type="submit" class="btn btn-primary">Add</button>  <a href='/users/{{userID}}'><button type="button" class="btn btn-warning">Cancel</button></a>
     </form>
     </div>

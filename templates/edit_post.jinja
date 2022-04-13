@@ -17,6 +17,21 @@ Edit Post Form
             <label for="content" class="form-label">Content</label>
             <textarea id="content" name="content" class="form-control z-depth-1" rows="4" placeholder="Write your content here..." form="edit_post_form">{{post.content}}</textarea>
         </div>
+        <div class="mb-2 col-sm-3">
+            {% for tag in tags %}
+                {% if tag in post.tags %}
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" value="{{tag.name}}" id="tagID{{tag.id}}" name="tags_checklist" form="edit_post_form" checked>
+                        <label class="form-check-label" for="tagID{{tag.id}}">{{tag.name}}</label>
+                    </div>
+                {% else %}
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" value="{{tag.name}}" id="tagID{{tag.id}}" name="tags_checklist" form="edit_post_form">
+                        <label class="form-check-label" for="tagID{{tag.id}}">{{tag.name}}</label>
+                    </div>
+                {% endif %}
+            {% endfor %}
+        </div>
         <button type="submit" class="btn btn-primary">Edit</button>  <a href='/users/{{post.user_id}}'><button type="button" class="btn btn-warning">Cancel</button></a>
     </form>
     </div>

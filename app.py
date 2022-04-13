@@ -2,7 +2,7 @@
 
 from flask import Flask, request, render_template, redirect, flash, session
 from flask_debugtoolbar import DebugToolbarExtension
-from models import db, connect_db, User, Post
+from models import db, connect_db, User, Post, Tag, PostTag
 
 
 # Config app stuff
@@ -79,15 +79,18 @@ def post_page(postID):
 def add_new_post_page(userID):
     """Shows form to add new post"""
     user = User.get_user(userID)
-    return render_template("add_post_form.jinja", userID=userID, user=user)
+    tags = Tag.get_all_tags()
+    return render_template("add_post_form.jinja", userID=userID, user=user, tags=tags)
 
 @app.route('/users/<userID>/posts/new', methods=["POST"])
 def add_new_post(userID):
     """Captures form data and adds new post"""
     title = request.form['title']
     content = request.form['content']
+    tags_list = request.form.getlist('tags_checklist')
     date = Post.get_datetime()
-    Post.add_new_post(title,content,date,userID)
+    postID = Post.add_new_post(title,content,date,userID)
+    PostTag.update_tags_on_post(postID, tags_list)
     return redirect(f'/users/{userID}')
 
 @app.route('/posts/<postID>/edit')
@@ -95,15 +98,18 @@ def edit_post(postID):
     """Show form to edit an existing post"""
     post = Post.get_post(postID)
     user = post.user.first_name + " " + post.user.last_name
-    return render_template("edit_post.jinja", post=post, user=user)
+    tags = Tag.get_all_tags()
+    return render_template("edit_post.jinja", post=post, user=user, tags=tags)
 
 @app.route('/posts/<postID>/edit', methods=["POST"])
 def update_post(postID):
     """Capture form values and update post in db"""
     title = request.form['title']
     content = request.form['content']
+    tags_list = request.form.getlist('tags_checklist')
     date = Post.get_datetime()
     userID = Post.update_post(title, content, date, postID)
+    PostTag.update_tags_on_post(postID, tags_list)
     return redirect(f'/users/{userID}')
 
 @app.route('/posts/<postID>/delete', methods=["POST"])
@@ -111,3 +117,46 @@ def delete_post(postID):
     """Delete selected post"""
     userID = Post.delete_post(postID)
     return redirect(f'/users/{userID}')
+
+@app.route('/tags')
+def tags_list_page():
+    """Lists all tags, with links to tag detail page"""
+    tags = Tag.get_all_tags()
+    return render_template("tags_list.jinja", tags=tags)
+
+@app.route('/tags/<tagID>')
+def tag_details_page(tagID):
+    """Shows details of selected tag"""
+    tag = Tag.get_tag(tagID)
+    return render_template('tag_details.jinja', tag=tag)
+
+@app.route('/tags/new')
+def add_tag_page():
+    """Show form to add a new tag"""
+    return render_template("add_tag_form.jinja")
+
+@app.route('/tags/new', methods=["POST"])
+def add_tag():
+    """Captures form value and adds new tag to db"""
+    name = request.form['tag_name']
+    Tag.add_tag(name)
+    return redirect('/tags')
+
+@app.route('/tags/<tagID>/edit')
+def edit_tag_page(tagID):
+    """Shows form to edit selected tag"""
+    tag = Tag.get_tag(tagID)
+    return render_template("edit_tag.jinja", tag=tag)
+
+@app.route('/tags/<tagID>/edit', methods=["POST"])
+def edit_tag(tagID):
+    """Captures form value and updates existing tag in db"""
+    name = request.form['tag_name']
+    Tag.update_tag(name, tagID)
+    return redirect('/tags')
+
+@app.route('/tags/<tagID>/delete', methods=["POST"])
+def delete_tag(tagID):
+    """Deletes selected tag from db and redirects to tags list"""
+    Tag.remove_tag(tagID)
+    return redirect('/tags')
